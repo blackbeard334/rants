@@ -1,5 +1,3 @@
-# Java Explicit Vectorization
-
 - [Part 1 - background (written by dummies, for curious cats)](#part-1---background-written-by-dummies-for-curious-cats)
   - [What is _'Vectorization'_?](#what-is-_vectorization_)
     - [Bullshit use-case](#bullshit-use-case)
