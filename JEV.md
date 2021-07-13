@@ -2,7 +2,7 @@
 
 - [Part 1 - background (written by dummies, for curious cats)](#part-1---background-written-by-dummies-for-curious-cats)
   - [What is _'Vectorization'_?](#what-is-_vectorization_)
-    - [Bullshit usecase](#bullshit-usecase)
+    - [Bullshit use-case](#bullshit-use-case)
       - [Vivisection](#vivisection)
     - [Soothing light at the end the tunnel](#soothing-light-at-the-end-the-tunnel)
       - [Enter the SIMD](#enter-the-simd)
@@ -10,10 +10,10 @@
         - [Soothing light at the end the tunnel](#soothing-light-at-the-end-the-tunnel)
         - [What's my name?](#whats-my-name)
 - [Part 2 - let's talk about Java](#part-2---lets-talk-about-java)
-  - [Auto Vectorization(AV)](#auto-vectorizationav)
+  - [Auto Vectorization (AV)](#auto-vectorization-av)
     - [-- Interlude --](#---interlude---)
     - [What abouts the Java?](#what-abouts-the-java)
-  - [Explicit Vectorization(EV)](#explicit-vectorizationev)
+  - [Explicit Vectorization (EV)](#explicit-vectorization-ev)
     - [Prelude](#prelude)
     - [Enter the Dragon](#enter-the-dragon)
     - [Show me the money](#show-me-the-money)
@@ -44,17 +44,16 @@
 Without beating about the bush, does Vectorization, explicit or otherwise, have anything to do with the
 fantabulous `java.util.Vector` class? Well, not much.
 
-Allow me to explain with this very long example(there is probably some proper etymology that goes along with this
-answer, but I can't be bothered to look for it).
+Allow me to explain with this very long example.
 
-#### Bullshit usecase
+#### Bullshit use-case
 
 Let's say you are writing an image editing tool similar to Photoshop. One of the functions you want to implement is
 adjusting the brightness. In this particular example:
 
 - Your input is an array of 3 bytes of `RGB` values per pixel, meaning a `1920 x 1080` picture would
   have `3 x 1920 x 1080 = 6220800` bytes.
-- Increasing brightness is basically adding 1(or more) to each RGB value per pixel
+- Increasing brightness is basically adding 1 (or more) to each RGB value per pixel
 
 So how would we do that?
 
@@ -64,7 +63,7 @@ So how would we do that?
   }
 ```
 
-We could probably do something fancy like unrolling the loop(eliminating some bounds checking) to speed this up:
+We could probably do something fancy like unrolling the loop (eliminating some bounds checking) to speed this up:
 
 ```java
   for (int i = 0; i < 6220800; i += 2) {
@@ -80,11 +79,11 @@ a `digital logic gate` on steroids, that can do A LOT of ~~dumb~~ simple things 
 
 To give you an idea of what "simple" means, if you want to add 2 numbers you have to:
 
-- 1st simple operation(`mov reg1, num1`): load first number into register(small memory inside CPU)
-- 2nd simple operation(`add reg1, num2`): add second number to register
-- 3rd simple operation(`mov num1, reg1`): write register back to first number
+- 1st simple operation (`mov reg1, num1`): load first number into register (small memory inside CPU)
+- 2nd simple operation (`add reg1, num2`): add second number to register
+- 3rd simple operation (`mov num1, reg1`): write register back to first number
 
-That is 3 CPU operations for something that seems rather innocent. The good news is, is that your CPU(depending on
+That is 3 CPU operations for something that seems rather innocent. The good news is, is that your CPU (depending on
 speed, and the type of ops) can do millions of these operations per second.
 
 Let's say our CPU can do a million operations per second. Let us do a simplified dissection of the first example from
@@ -93,21 +92,21 @@ above:
 - 3 instructions: save current state
 - 3 instructions: setting up the loop
     - 3 instructions: checking/incrementing the loop
-    - 3 instructions: adding 1 to a value(`mov, add, mov`)
+    - 3 instructions: adding 1 to a value (`mov, add, mov`)
 - 3 instructions: restore saved state
 
 So about 6 instructions per loop iteration. Multiply that by the size of our loop `6 x 6220800 = 37324800`, which when
 divided by a million operations per second results in `37324800 / 1000000 = 37` seconds to increase the brightness of
-a `1920 x 1080` picture(on a fundamental level, computers have a mechanical nature to them).
+a `1920 x 1080` picture (on a fundamental level, computers have a mechanical nature to them).
 
 If you think this sounds ridiculous dear reader, know that it is the truth, albeit half the truth. Your computer truly
 does operate in this way, but that does not mean that this is the **only** way it can operate. If changing every pixel
-on a screen took 37 seconds, then neither videogames nor videoplayback would be possible on a computer.
+on a screen took 37 seconds, then neither video-games nor video playback would be possible on a computer.
 
 #### Soothing light at the end the tunnel
 
 It might surprise/scare you to know, that a lot of the time, software boils down to loads of repetitive operations like
-the ones we described above(disclaimer: this depends of course, but it's our story, so it is true). The point being, our
+the ones we described above (disclaimer: this depends of course, but it's our story, so it is true). The point being, our
 example is not an edge case. Meaning that a solution is needed, which in turn results in companies inventing ways to
 address the ~~business opportunity~~ problem.
 
@@ -140,11 +139,11 @@ even though a `loop checking` iteration has:
 1. 3 instructions for checking the loop
 2. And 3 instructions for incrementing the element
 
-The second 3 instructions take 50% slower, so take 75% of the total time it takes to do an iteration(again, this might
+The second 3 instructions are 50% slower, so take 75% of the total time it takes to do an iteration (again, this might
 not be accurate, but it makes for a better story). So **even** if you manage to remove all of the `loop checking`
 instructions, the program will **never** be twice as fast.
 
-Also, friendly neighbourhood compiler is *_usually_* smart enough to know if and how much loop unrolling is necessary :)
+Also, your friendly neighbourhood compiler is *_usually_* smart enough to know if and how much loop unrolling is necessary :)
 
 ###### Soothing light at the end the tunnel
 
@@ -169,7 +168,7 @@ But what are these "special registers" they talk about.
 Well, like we briefly mentioned at the top, a register is a memory block inside the CPU. What we didn't mention is that
 registers are traditionally very small. Like `1 or 2 bytes` small. Which of course, doesn't help when we want to copy a
 sequence of bytes into a register. That's why these SIMD instructions came hand in hand with the special registers. A
-special register can usually hold about `8 times` what a normal register can hold(this depends on the CPU). Great! So we
+special register can usually hold about `8 times` what a normal register can hold (this depends on the CPU). Great! So we
 can copy `8 values` per operations!
 
 But does this mean that this **single instruction** is **8 times faster** than doing 8 ordinary instructions? The short
@@ -183,22 +182,22 @@ becomes `37 * 0.4 = 14.8` seconds.
 
 ###### What's my name?
 
-This phenomenon, is called Vectorization. The term stems from Vector Processors(see wikipedia), which operate on
+This phenomenon, is called Vectorization. The term stems from Vector Processors (see wikipedia), which operate on
 Mathematical Vectors. And if you remember your linear algebra, a Vector is basically something like `[1 2 3 0]`, which
 I'm sure your Java laden eyes mistook this for an Array. Fear not, it basically is an array, only on a much lower level.
 
 ## Part 2 - let's talk about Java
 
-So before we get into what any of this has to do with Java, know that there 2(or maybe more?) different types of
+So before we get into what any of this has to do with Java, know that there 2 (or maybe more?) different types of
 Vectorization:
 
-1. Auto Vectorization(AV)
-2. Explicit Vectorization(EV)
+1. Auto Vectorization (AV)
+2. Explicit Vectorization (EV)
 
 Of course we recognize EV from the title of this rant, so we will talk about it extensively. But to get to that, we need
 to talk about AV first.
 
-### Auto Vectorization(AV)
+### Auto Vectorization (AV)
 
 So the stuff we talked about in the previous section was more or less on Assembly/Machine Code level. But naturally,
 most of us mere mortals program in higher level languages. So how does my `for loop` become Machine Code?
@@ -214,7 +213,7 @@ CPU's have hundreds upon thousands of `instructions`, and any given operation us
 are best used under different conditions.    
 
 For example, addition in Assembly is done by using the `add reg1, reg2` instruction. Pretty straight-forward. However,
-in the case of adding 1 to a loop index for instance, a smart compiler will most likely use the `inc reg`(increment)
+in the case of adding 1 to a loop index for instance, a smart compiler will most likely use the `inc reg` (increment)
 instruction. While the speed gain is usually negligible, your code becomes smaller by saving the additional bytes[2].
 
 #### -- Interlude --
@@ -225,13 +224,15 @@ If we reduce the fact that SIMD instructions are simply (fancy)CPU instructions,
 Optimizing Compiler chooses the best `opcode/instruction` for the job, then we might conclude that the Compiler might
 also choose a SIMD instruction, if the situation arises. And we would be correct.
 
-And this process my dear comrades, is called: Auto Vectorization(https://youtu.be/y8Kyi0WNg40). 
+And this process my dear comrades, is called: Auto Vectorization.
+
+![Dramatic look](https://media.giphy.com/media/kKdgdeuO2M08M/giphy.gif)
 
 Does this mean my trustworthy compiler will Vectorize all my code?
 As a wise man once said...it depends.
 
 To explain this, we will need to quote a different wise man, who once said that compilers are basically "stupid regex
-pattern matching engines"(sorry, can't remember the source). Meaning, like everything your compiler does, it only does
+pattern matching engines" (sorry, can't remember the source). Meaning, like everything your compiler does, it only does
 so under very specific circumstances. So while the magical compiler might rewrite the above loop to use SIMD, it doesn't
 take a lot of deviation for the same wizardly compiler to skip it.
 
@@ -244,14 +245,14 @@ Non-SIMD example:
   }
 ```
 
-Granted that you wouldn't write code like this(on purpose), it is still baffling that something like this would keep us
+Granted that you wouldn't write code like this (on purpose), it is still baffling that something like this would keep us
 from our deserved Vectorization goodness ¯\\_(ツ)_/¯
 
 #### What abouts the Java?
 
 Okay then, back to Java reality with the million dollar question; ~~to be or not to be~~ what about Java? Well,
 considering that Java compilers don't actually compile to Assembly/Machine Code T_T, we are sorry to say that...the JVM
-architects/developer got you covered and already implemented this in the JVM portion for your pleasure(we're not worthy).
+architects/developer got you covered and already implemented this in the JVM portion for your pleasure (we're not worthy).
 
 So yeah, Java supports a substantial subset of Auto Vectorization[3]. But like everything in JavaLand that concerns
 real-life hardware, there is an added layer of indirection that needs to be taken into consideration.
@@ -262,13 +263,13 @@ If you remember, the Java code lifecycle towards the CPU is an arduous one:
 - C1
 - C2
 
-As such, the AV optimizations are usually only activated from the latter part of C1 onwards(downwards?).
+As such, the AV optimizations are usually only activated from the latter part of C1 onwards (downwards?).
 
-Meaning(among other things), that very short lived pieces of code that don't reach C2 would unfortunately not be
-considered AV candidates. This on top of the compiler level requirements for a piece of code(such as a simple loop) to
+Meaning (among other things), that very short lived pieces of code that don't reach C2 would unfortunately not be
+considered AV candidates. This on top of the compiler level requirements for a piece of code (such as a simple loop) to
 be Vectorizable.
 
-### Explicit Vectorization(EV)
+### Explicit Vectorization (EV)
 
 #### Prelude
 
@@ -280,7 +281,7 @@ optimization. As we will see, this is sometimes very difficult to do with our co
 
 So instead, a lot of compilers provide so called **Compiler Overrides** that in some cases advise the compiler to take a
 closer look at a piece of code with regards to the optimization named by the **override**, while in others the compiler
-heuristics are completely ignored, and the optimization(or deopt in some cases) is simply performed.
+heuristics are completely ignored, and the optimization (or deopt in some cases) is simply performed.
 
 Even though Java doesn't have the traditional Compiler structure, it still maintains the spirit of being overridable in
 certain areas.
@@ -289,7 +290,7 @@ certain areas.
 
 *Even though a lot of this applies to areas outside of Java, we will try to focus on Java only from this point on.*
 
-We have finally reached the meat of the rant. *Explicit Vectorization(**EV**).*
+We have finally reached the meat of the rant. *Explicit Vectorization (**EV**).*
 
 Nutshell: <ins>where *AV* is an optimization provided by the compiler, *EV* is the override the programmer provides to force
 the compiler to Vectorize/SIMD-ify the code.</ins>
@@ -301,10 +302,10 @@ Let's give it a try then.
 ##### Prerequisites
 
 - JDK 16+
-- Add command line argument `--add-modules=jdk.incubator.vector`(this won't be necessary once the Vector API exits
+- Add command line argument `--add-modules=jdk.incubator.vector` (this won't be necessary once the Vector API exits
   incubation status)
-- x64 or ARM AArch64 CPU(as of JDK16, only these architectures are properly supported)
-- AVX support(if you have a CPU from the last decade[4], then just assume you have this)
+- x64 or ARM AArch64 CPU (as of JDK16, only these architectures are properly supported)
+- AVX support (if you have a CPU from the last decade[4], then just assume you have this)
 
 ##### Hello, 世界
 
@@ -380,7 +381,7 @@ first `4 ints` from the `rgb` array, at the specified `offset`.
 Now that the data is where we want it to be, we can unleash our CPU prowess upon it!!!
 
 As you will no doubt discover when you press ctrl + space on `vector.*`, there's a lot of fun things you can do with the
-vector. These of course are but a sane subset of SIMD, and instead of whining about it, be grateful(and send John Rose
+vector. These of course are but a sane subset of SIMD, and instead of whining about it, be grateful (and send John Rose
 & Paul Sandoz a gift basket).   
 
 ```java
@@ -397,7 +398,7 @@ result.intoArray(rgb, offset);
 
 And finally, we write the updated values back to the array. The way we do it here isn't really the 'proper' way, but it
 works nonetheless. By proper, I mean writing the values back to the input array. It's much better to write to an
-intermediate array(as we might explain later). 
+intermediate array (as we might explain later). 
 
 ###### Hello hello
 
@@ -426,7 +427,7 @@ the `Vector` API had some slight overhead compared to the compiler provided `AV`
 
 Seems I was only half right though, as in it is indeed **a little** slower, but not for the reasons I thought.
 
-So running both versions for 1000 iterations(after warmup) yields the following results:
+So running both versions for 1000 iterations (after warmup) yields the following results:
 
 |vanilla      |simd         |
 |---          |---          | 
@@ -475,7 +476,7 @@ This one is a long story (that I might write up later), but the gist of what we 
 translated to bigger instructions, which are double the size, so the C2 compiler ends up unrolling half as much. 
 
 Also...while the EV version is a tad slower, it was in fact Vectorized, so in a sense, EV works perfectly. Loop
-unrolling is a different kind of optimization, that might have failed for a completely different(and unrelated) reason.
+unrolling is a different kind of optimization, that might have failed for a completely different (and unrelated) reason.
 
 The assembly snippet above rather the result, not the cause. For now, just accept this inconsistency, and if
 you're interested, check back for a (possible)follow up rant explaining why. To be continued...
@@ -507,9 +508,9 @@ private static int getValue() {
 Purists might think this is cheating, but to prove this specific point, I would daresay it is an acceptable cheat.
 
 So what are we doing here, well, we are tricking the compiler into believing that `getValue()` does not **always**
-return the same value(even though it does). By doing so, the compiler declines to Auto Vectorize the loop :(
+return the same value (even though it does). By doing so, the compiler declines to Auto Vectorize the loop :(
 
-On the other hand, the EV variant is still vectorized, making the SIMD version in our benchmark(1000 iterations)
+On the other hand, the EV variant is still vectorized, making the SIMD version in our benchmark (1000 iterations)
 about `1 second` faster!
 
 To offset the number of times `getValue()` is called, we hacked the SIMD version as follows:
@@ -519,7 +520,7 @@ To offset the number of times `getValue()` is called, we hacked the SIMD version
 
 ##### Real world example
 
-As the esteemed reader(all 1 of you) might be accustomed to, most articles of this nature provide examples that are
+As the esteemed reader (all 1 of you) might be accustomed to, most articles of this nature provide examples that are
 often a bit removed from what one might do in an actual application. So to continue our quest to show off, let's do some
 actual production quality coding here.
 
@@ -583,8 +584,8 @@ public class idSIMD_Generic {
 ```
 
 This version of the method is at the mercy of any compiler + hardware available optimizations, so it should work on all
-platforms(including your toaster). Looking closely at the rest of the Doom 3 repo, we find multiple
-files `idSIMD_SSE, idSIMD_3DNow, idSIMD_AltiVec...etc`(wikipedia is your friend). Some having a different(probably
+platforms (including your toaster). Looking closely at the rest of the Doom 3 repo, we find multiple
+files `idSIMD_SSE, idSIMD_3DNow, idSIMD_AltiVec...etc` (wikipedia is your friend). Some having a different (probably
 faster) implementations.
 
 ###### SIMD MinMax() version
@@ -624,12 +625,12 @@ void VPCALL idSIMD_SSE::MinMax( idVec3 &min, idVec3 &max, const idVec3 *src, con
 }
 ```
 
-Looking at the parts of the code we show here(method is too long to explain), we notice 2~4 things:
+Looking at the parts of the code we show here (method is too long to explain), we notice 2~4 things:
 * movss/movhps: bulk moving instructions, which we already know we can do in Java.
 * minps/maxps: which stands for `Minimum/Maximum Packed Single-Precision Floating-Point`; compares 2 registers, and
   returns the lowest float values of both.
   
-At this point you should be crossing your fingers(I have my toes crossed) while you go check the Vector API javadocs.
+At this point you should be crossing your fingers (I have my toes crossed) while you go check the Vector API javadocs.
 
 Indeed, the API contains **exactly** what we are looking for[6].
 
@@ -676,9 +677,9 @@ public class idSIMD_SSE {
 }
 ```
 
-So I tried to make the code self explanatory by adding as many comments as possible(as I always do). 
+So I tried to make the code self explanatory by adding as many comments as possible (as I always do). 
 
-So let's look at some benchmarks of 20000 vertices(60000 floats):
+So let's look at some benchmarks of 20000 vertices (60000 floats):
 
 |vanilla      |simd         |
 |---          |---          |
@@ -696,12 +697,12 @@ floats are arranged in a sequence of `xyzxyzxyz...`, meaning reading 8 floats wo
 iteration `zxyzxyzx`, and so on.
 
 Hang on, so what if instead of comparing less floats, we go for more?
-Not a bad idea(if I may say so myself), so how high do the `SPECIES` go?
+Not a bad idea (if I may say so myself), so how high do the `SPECIES` go?
 Well, `FloatVector.SPECIES_512` is the max. Which would mean `xyzxyzxy_zxyzxyzx`. Dang, we get the same problem.
 
 Okay, so how many bits do we need for a full sequence read? Considering our sequence `xyz` is 3 floats long, and our
 lane `FloatVector.SPECIES_256` is 8 floats wide, we probably need `3 x 8 = 24 floats`. `xyzxyzxy_zxyzxyzx_yzxyzxyz`.
-Problem is, that results in `768 bits`, something our API(and hardware) doesn't support.
+Problem is, that results in `768 bits`, something our API (and hardware) doesn't support.
 
 So instead, let's tackle this from a programmer point of view, and worry about the rest later. We need `768 bits`, but
 we can only read `256 bits` at a time. Simple, we iterate! Or, in this case, we unroll our iteration.
@@ -787,7 +788,7 @@ So, let's do a little benchmarking, and see how we did:
 Holy guacamole, that's almost 3 times as fast as the simd version and almost **6 times** faster than the vanilla one!!!!
 1One
 
-How is this possible you ask? This is only conjecture, but most CPU's have 8 SSE(Streaming SIMD Extension) registers,
+How is this possible you ask? This is only conjecture, but most CPU's have 8 SSE (Streaming SIMD Extension) registers,
 meaning our 3 loads/mins/maxs are most likely done concurrently to different registers, instead of sequentially to the
 same one. Could we go up to 6 registers then...you might ask?
 
@@ -796,16 +797,16 @@ follow-up rant :)
 
 ### Epilogue
 
-The Vector API is a very exciting addition to the Java realm. At first glance it looks very complicated and difficult to
-use, but it is easy to get used to, and pleasantly documented.
+The Vector API is a very exciting addition to the Java realm. At first glance it looks complicated and difficult to use,
+but it is easy to get used to, and pleasantly documented.
 
-A lot of libraries that might depend on JNI or external more native calls for performance will benefit drastically from
-the readability and maintainability that writing code with the Vector API will provide.
+A lot of libraries that might depend on JNI or other more native-centric techniques for performance would benefit
+drastically from the readability and maintainability that writing code with the Vector API will provide.
 
 The bigger problem lies with this new hammer to which many a programmer will seek to convert their problem into a
 befitting nail. My advice to you dear reader is, don't. You will know when the time is right.
 
-My final piece of advice(before I go eat), is to always measure, and to understand what your compiler/CPU wants to do.
+My final piece of advice (before I go eat), is to always measure, and to understand what your compiler/CPU wants to do.
 You take care of them, and they will take care of you.
 
 
@@ -817,6 +818,5 @@ You take care of them, and they will take care of you.
 4. https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#CPUs_with_AVX2
 5. https://software.intel.com/content/www/us/en/develop/articles/what-to-do-when-auto-vectorization-fails.html
 6. https://docs.oracle.com/en/java/javase/16/docs/api/jdk.incubator.vector/jdk/incubator/vector/Vector.html#min(jdk.incubator.vector.Vector)
-
 
 - https://arstechnica.com/features/2000/03/simd/
