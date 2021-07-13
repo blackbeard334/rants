@@ -1,0 +1,10 @@
+title: rants
+
+show_excerpts: true
+
+minima:
+  social_links:
+    twitter: blackbeard0x14e
+    github:  blackbeard334
+
+remote_theme: jekyll/minima
