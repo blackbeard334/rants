@@ -2,7 +2,7 @@ title: rants
 description: > 
   "Disclaimer: please test & verify everything I rant about."
 
-show_excerpts: true
+show_excerpts: false
 
 minima:
   social_links:
