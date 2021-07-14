@@ -180,7 +180,7 @@ becomes `37 * 0.4 = 14.8` seconds.
 
 ###### What's my name?
 
-This phenomenon, is called Vectorization. The term stems from Vector Processors (see wikipedia), which operate on
+This phenomenon, is called Vectorization. The term stems from Vector Processors (see Wikipedia), which operate on
 Mathematical Vectors. And if you remember your linear algebra, a Vector is basically something like `[1 2 3 0]`, which
 I'm sure your Java laden eyes mistook this for an Array. Fear not, it basically is an array, only on a much lower level.
 
@@ -344,7 +344,7 @@ So by dividing `128 / 32 = 4`, meaning we can do operations on 4 ints at a time.
 final vector.VectorSpecies<Integer> species=vector.IntVector.SPECIES_128;
 ```
 
-Sweet, but do I need to do all these tedious calculations everytime I want to do me some vectors?
+Sweet, but do I need to do all these tedious calculations every time I want to do me some vectors?
 
 Luckily, no. The API contains a couple of convenience constants that do this for you.
 
@@ -357,7 +357,7 @@ final vector.VectorSpecies<Integer> species = vector.IntVector.SPECIES_PREFERRED
 So next, we have to transform our plain old `int[]` into the Vector version. Or, in other words, move the data into the
 special SIMD registers.
 
-The funny thing about this part though, is that it seems very counterintuitive from the performance point of view. I
+The funny thing about this part though, is that it seems very counter-intuitive from the performance point of view. I
 mean, we are literally copying the data into smaller chunks, instead of iterating over an array?? At the very least you
 use double the memory size. 
 
@@ -690,7 +690,7 @@ code, and myself to pretend that I write my shopping lists in assembly.
 ####### Elephant in the room
 
 A keen observer might have...observed, that we use a `FloatVector.SPECIES_256`, meaning we can read/write/operate
-on `8 floats` simultaneously, and yet we increment our loop by `6` at a time. This ofcourse is due to the fact that the
+on `8 floats` simultaneously, and yet we increment our loop by `6` at a time. This of course is due to the fact that the
 floats are arranged in a sequence of `xyzxyzxyz...`, meaning reading 8 floats would read `xyzxyzxy` and the following
 iteration `zxyzxyzx`, and so on.
 
