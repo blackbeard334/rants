@@ -6,7 +6,7 @@ show_excerpts: false
 
 minima:
   social_links:
-    twitter: blackbeard0x14e
-    github:  blackbeard334
+    - { platform: twitter, user_url: "https://twitter.com/blackbeard0x14e" }
+    - { platform: github,  user_url: "https://github.com/blackbeard334" }
 
 remote_theme: jekyll/minima
