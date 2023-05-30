@@ -45,11 +45,11 @@ Then came the low priority tinting bug. And all hell broke loose. A weekend turn
 
 What it looked like:
 
-[![blue](/rants/images/rdd01_blue.png)]("blue")
+[![blue](/images/rdd01_blue.png)]("blue")
 
 What it should have looked like:
 
-[![normal](/rants/images/rdd01_normal.png)]("normal")
+[![normal](/images/rdd01_normal.png)]("normal")
 
 ## YUV
 
