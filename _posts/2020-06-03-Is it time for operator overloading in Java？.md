@@ -84,7 +84,7 @@
 </p>
 <p class="c2"><span
         style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 202.00px; height: 34.00px;"><img
-        alt="" src="/rants/images/image1.png"
+        alt="" src="/images/image1.png"
         style="width: 202.00px; height: 34.00px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);"
         title=""></span></p>
 <p class="c2"><span class="c0">What would this look like if we had OO though?</span></p><a
@@ -102,7 +102,7 @@
 </p>
 <p class="c2"><span
         style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 624.00px; height: 72.00px;"><img
-        alt="" src="/rants/images/image2.png"
+        alt="" src="/images/image2.png"
         style="width: 624.00px; height: 72.00px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);"
         title=""></span></p>
 <p class="c2"><span class="c0">What would that look like in BigDecimal?</span></p><a
